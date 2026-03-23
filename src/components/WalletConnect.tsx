@@ -1,0 +1,75 @@
+import { useAccount, useConnect, useDisconnect, useSwitchChain, useBalance } from 'wagmi';
+import { sepolia } from 'wagmi/chains';
+import { injected } from 'wagmi/connectors';
+import { ChevronDown, LogOut, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+
+export function WalletConnect() {
+  const { address, isConnected, chain } = useAccount();
+  const { connect } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { switchChain } = useSwitchChain();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const isWrongNetwork = isConnected && chain?.id !== sepolia.id;
+
+  if (!isConnected) {
+    return (
+      <button
+        onClick={() => connect({ connector: injected() })}
+        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium transition-colors shadow-sm"
+      >
+        Connect Wallet
+      </button>
+    );
+  }
+
+  if (isWrongNetwork) {
+    return (
+      <button
+        onClick={() => switchChain({ chainId: sepolia.id })}
+        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2"
+      >
+        <AlertTriangle size={18} />
+        Switch to Sepolia
+      </button>
+    );
+  }
+
+  const truncatedAddress = `${address?.slice(0, 6)}...${address?.slice(-4)}`;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-xl font-medium transition-colors shadow-sm"
+      >
+        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+        {truncatedAddress}
+        <ChevronDown size={16} className="text-gray-500" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+          <div className="px-4 py-3 border-b border-gray-100">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Network</p>
+            <p className="text-sm font-medium text-gray-900 flex items-center gap-2 mt-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+              Sepolia Testnet
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              disconnect();
+              setIsOpen(false);
+            }}
+            className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 font-medium flex items-center gap-2 transition-colors"
+          >
+            <LogOut size={16} />
+            Disconnect
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
