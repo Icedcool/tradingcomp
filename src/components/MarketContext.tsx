@@ -1,19 +1,49 @@
+import { useCallback, useEffect, useState } from 'react';
 import { useAccount, useReadContract, useReadContracts } from 'wagmi';
 import { TOKENS, ERC20_ABI } from '../utils/contracts';
 import { formatUnits } from 'viem';
 import { PriceChart } from './PriceChart';
 import { Wallet, TrendingUp, RefreshCw } from 'lucide-react';
+import { isPoolPriceSnapshot, type PoolPriceSnapshot } from '../types/poolPrice';
+import { formatCompactBalance } from '../utils/formatCompactNumber';
+import { factTradeUrl } from '../utils/factTradeApi';
 
-function formatCompactBalance(value: number): string {
-  if (!Number.isFinite(value)) return '0.00';
-  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(1)}B`;
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}k`;
-  return value.toFixed(2);
-}
+const POOL_PRICE_URL =
+  typeof import.meta.env.VITE_POOL_PRICE_URL === 'string' && import.meta.env.VITE_POOL_PRICE_URL.trim() !== ''
+    ? import.meta.env.VITE_POOL_PRICE_URL.trim()
+    : factTradeUrl('poolPrice');
 
 export function MarketContext() {
   const { address, isConnected } = useAccount();
+  const [poolSnapshots, setPoolSnapshots] = useState<PoolPriceSnapshot[]>([]);
+  const [poolPriceLoading, setPoolPriceLoading] = useState(true);
+  const [poolPriceError, setPoolPriceError] = useState<string | null>(null);
+
+  const loadPoolPrices = useCallback(async () => {
+    setPoolPriceLoading(true);
+    setPoolPriceError(null);
+    try {
+      const res = await fetch(`${POOL_PRICE_URL}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) {
+        throw new Error(`Could not load pool price (${res.status})`);
+      }
+      const data: unknown = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Pool price API must return a JSON array');
+      }
+      const valid = data.filter(isPoolPriceSnapshot);
+      setPoolSnapshots(valid);
+    } catch (e) {
+      setPoolSnapshots([]);
+      setPoolPriceError(e instanceof Error ? e.message : 'Failed to load pool prices');
+    } finally {
+      setPoolPriceLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPoolPrices();
+  }, [loadPoolPrices]);
 
   const { data: balances, refetch, isFetching } = useReadContracts({
     contracts: [
@@ -32,17 +62,18 @@ export function MarketContext() {
     ],
     query: {
       enabled: !!address,
-    }
+    },
   });
 
-  const fEthBalance = balances?.[0]?.result ? Number(formatUnits(balances[0].result as bigint, TOKENS.fETH.decimals)) : 0;
-  const ft564Balance = balances?.[1]?.result ? Number(formatUnits(balances[1].result as bigint, TOKENS.FT564.decimals)) : 0;
+  const fEthBalance = balances?.[0]?.result
+    ? Number(formatUnits(balances[0].result as bigint, TOKENS.fETH.decimals))
+    : 0;
+  const ft564Balance = balances?.[1]?.result
+    ? Number(formatUnits(balances[1].result as bigint, TOKENS.FT564.decimals))
+    : 0;
 
   return (
     <div className="flex flex-col h-full gap-6">
-      {/* Price Chart Panel */}
-      
-
       {/* Balances Panel */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
@@ -50,8 +81,8 @@ export function MarketContext() {
             <Wallet size={20} className="text-indigo-600" />
             Your Balances
           </h2>
-          <button 
-            onClick={() => refetch()} 
+          <button
+            onClick={() => refetch()}
             disabled={isFetching || !isConnected}
             className="text-gray-400 hover:text-indigo-600 transition-colors disabled:opacity-50"
           >
@@ -87,12 +118,27 @@ export function MarketContext() {
             <TrendingUp size={20} className="text-indigo-600" />
             Market Context
           </h2>
-          <div className="flex gap-2">
-            <span className="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">fETH / FT564</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+              fETH / FT564
+            </span>
+            <button
+              type="button"
+              onClick={() => loadPoolPrices()}
+              disabled={poolPriceLoading}
+              className="text-gray-400 hover:text-indigo-600 transition-colors disabled:opacity-50 p-1"
+              title="Reload pool price"
+            >
+              <RefreshCw size={18} className={poolPriceLoading ? 'animate-spin' : ''} />
+            </button>
           </div>
         </div>
         <div className="flex-1 min-h-[300px] p-4">
-          <PriceChart />
+          <PriceChart
+            snapshots={poolSnapshots}
+            loading={poolPriceLoading}
+            error={poolPriceError}
+          />
         </div>
       </div>
     </div>

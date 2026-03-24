@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/fact/:path*",
+      "destination": "https://api.fact.finance/:path*"
+    }
+  ]
+}

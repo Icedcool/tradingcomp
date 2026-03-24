@@ -1,0 +1,11 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+data/holder-balances.csv
+data/rank-evolution.csv
+.env*
+!.env
+!.env.example

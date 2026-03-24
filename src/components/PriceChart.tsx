@@ -1,23 +1,45 @@
-import { useEffect, useRef, useState } from 'react';
-import { createChart, ColorType, IChartApi, LineSeries } from 'lightweight-charts';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createChart, ColorType, IChartApi, LineSeries, type Time } from 'lightweight-charts';
+import type { PoolPriceSnapshot } from '../types/poolPrice';
+import { formatUnixSecondsNY } from '../utils/chartTimezone';
 
-// Mock data generator
-function generateData() {
-  const data = [];
-  let time = Math.floor(Date.now() / 1000) - 30 * 24 * 60 * 60; // 30 days ago
-  let price = 100;
-  for (let i = 0; i < 1000; i++) {
-    price += (Math.random() - 0.5) * 5;
-    data.push({ time: time as any, value: price });
-    time += 60 * 60; // 1 hour
-  }
-  return data;
+type Timeframe = '1H' | '24H' | '1W';
+
+function filterSnapshots(snapshots: PoolPriceSnapshot[], tf: Timeframe): PoolPriceSnapshot[] {
+  if (snapshots.length === 0) return [];
+  const now = Date.now();
+  const ms =
+    tf === '1H' ? 60 * 60 * 1000 : tf === '24H' ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000;
+  const cut = now - ms;
+  return snapshots.filter((s) => {
+    const t = new Date(s.timestamp).getTime();
+    return Number.isFinite(t) && t >= cut;
+  });
 }
 
-export function PriceChart() {
+function toChartPoints(snapshots: PoolPriceSnapshot[]): { time: number; value: number }[] {
+  return [...snapshots]
+    .filter((s) => Number.isFinite(new Date(s.timestamp).getTime()))
+    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+    .map((s) => ({
+      time: Math.floor(new Date(s.timestamp).getTime() / 1000),
+      value: s.price,
+    }));
+}
+
+type PriceChartProps = {
+  snapshots: PoolPriceSnapshot[];
+  loading?: boolean;
+  error?: string | null;
+};
+
+export function PriceChart({ snapshots, loading, error }: PriceChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const [timeframe, setTimeframe] = useState<'1H' | '24H' | '1W'>('24H');
+  const [timeframe, setTimeframe] = useState<Timeframe>('24H');
+
+  const filtered = useMemo(() => filterSnapshots(snapshots, timeframe), [snapshots, timeframe]);
+  const lineData = useMemo(() => toChartPoints(filtered), [filtered]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -39,6 +61,17 @@ export function PriceChart() {
       },
       width: chartContainerRef.current.clientWidth,
       height: 300,
+      localization: {
+        timeFormatter: (time: Time) => {
+          if (typeof time === 'number') return formatUnixSecondsNY(time);
+          if (time && typeof time === 'object' && 'year' in time) {
+            const bd = time as { year: number; month: number; day: number };
+            const utc = Date.UTC(bd.year, bd.month - 1, bd.day, 12, 0, 0);
+            return formatUnixSecondsNY(Math.floor(utc / 1000));
+          }
+          return '';
+        },
+      },
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
@@ -54,9 +87,7 @@ export function PriceChart() {
       crosshairMarkerBackgroundColor: '#4f46e5',
     });
 
-    const data = generateData();
-    lineSeries.setData(data);
-
+    lineSeries.setData(lineData as { time: any; value: number }[]);
     chart.timeScale().fitContent();
     chartRef.current = chart;
 
@@ -65,16 +96,18 @@ export function PriceChart() {
     return () => {
       window.removeEventListener('resize', handleResize);
       chart.remove();
+      chartRef.current = null;
     };
-  }, [timeframe]);
+  }, [timeframe, lineData]);
 
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex justify-end gap-2 mb-4">
-        {['1H', '24H', '1W'].map((tf) => (
+        {(['1H', '24H', '1W'] as const).map((tf) => (
           <button
             key={tf}
-            onClick={() => setTimeframe(tf as any)}
+            type="button"
+            onClick={() => setTimeframe(tf)}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               timeframe === tf
                 ? 'bg-indigo-100 text-indigo-700'
@@ -85,7 +118,22 @@ export function PriceChart() {
           </button>
         ))}
       </div>
-      <div ref={chartContainerRef} className="flex-1 w-full" />
+      {loading && (
+        <p className="text-sm text-gray-500 mb-2">Loading pool price history…</p>
+      )}
+      {error && (
+        <p className="text-sm text-amber-700 mb-2">{error}</p>
+      )}
+      {!loading && !error && lineData.length === 0 && (
+        <p className="text-sm text-gray-500 mb-2">
+          No price data in this range. Data is loaded via <code className="text-xs bg-gray-100 px-1 rounded">/api/fact/trade/poolPrice</code>{' '}
+          (proxied to Fact Finance). Try another timeframe or set{' '}
+          <code className="text-xs bg-gray-100 px-1 rounded">VITE_POOL_PRICE_URL=/pool-price.json</code> and run{' '}
+          <code className="text-xs bg-gray-100 px-1 rounded">npm run fetch-pool-price</code>.
+        </p>
+      )}
+      <p className="text-[11px] text-gray-400 mb-1">Axis times: New York (America/New_York)</p>
+      <div ref={chartContainerRef} className="flex-1 w-full min-h-[300px]" />
     </div>
   );
 }

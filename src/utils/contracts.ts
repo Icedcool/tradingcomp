@@ -6,7 +6,7 @@ const ADDR_RE = /^0x[a-fA-F0-9]{40}$/;
 function envAddress(value: string | undefined, name: string): `0x${string}` {
   if (!value || !ADDR_RE.test(value) || !isAddress(value)) {
     throw new Error(
-      `${name} is missing or not a valid address. Set it in .env (see .env.example) or use .env.development / .env.production.`,
+      `${name} is missing or not a valid address. Set it in .env, .env.local, or your host (e.g. Vercel) — see .env.example.`,
     );
   }
   return value as `0x${string}`;
