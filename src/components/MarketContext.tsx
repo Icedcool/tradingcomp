@@ -75,9 +75,9 @@ export function MarketContext() {
   return (
     <div className="flex flex-col h-full gap-6">
       {/* Balances Panel */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <Wallet size={20} className="text-indigo-600" />
             Your Balances
           </h2>
@@ -113,13 +113,13 @@ export function MarketContext() {
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden flex-1 flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <TrendingUp size={20} className="text-indigo-600" />
-            Market Context
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center gap-2">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 min-w-0">
+            <TrendingUp size={20} className="text-indigo-600 shrink-0" />
+            <span className="truncate">Market Context</span>
           </h2>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 sm:px-3 py-1 rounded-full">
               fETH / FT564
             </span>
             <button
@@ -133,7 +133,7 @@ export function MarketContext() {
             </button>
           </div>
         </div>
-        <div className="flex-1 min-h-[300px] p-4">
+        <div className="flex-1 min-h-[250px] sm:min-h-[300px] p-3 sm:p-4">
           <PriceChart
             snapshots={poolSnapshots}
             loading={poolPriceLoading}

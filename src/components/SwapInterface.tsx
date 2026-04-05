@@ -296,7 +296,7 @@ export function SwapInterface() {
   const buttonState = getButtonState();
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-xl p-6 max-w-md w-full mx-auto relative overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-xl p-4 sm:p-6 max-w-md w-full mx-auto relative overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Swap</h2>
         <button
@@ -308,7 +308,7 @@ export function SwapInterface() {
       </div>
 
       {isSettingsOpen && (
-        <div className="absolute top-16 right-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg rounded-xl p-4 z-10 w-64">
+        <div className="absolute top-16 right-4 sm:right-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg rounded-xl p-4 z-10 w-56 sm:w-64">
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Slippage Tolerance</p>
           <div className="flex gap-2 mb-2">
             {[0.1, 0.5, 1].map((val) => (
@@ -349,7 +349,7 @@ export function SwapInterface() {
             value={amountIn}
             onChange={(e) => setAmountIn(e.target.value)}
             placeholder="0"
-            className="bg-transparent text-4xl font-semibold text-gray-900 dark:text-white outline-none w-full placeholder-gray-300 dark:placeholder-gray-600"
+            className="bg-transparent text-2xl sm:text-4xl font-semibold text-gray-900 dark:text-white outline-none w-full placeholder-gray-300 dark:placeholder-gray-600"
           />
           <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm shrink-0">
             <span className="font-bold text-gray-900 dark:text-white">{tokenIn.symbol}</span>
@@ -391,7 +391,7 @@ export function SwapInterface() {
             value={isQuoting ? 'Fetching...' : amountOut}
             readOnly
             placeholder="0"
-            className="bg-transparent text-4xl font-semibold text-gray-900 dark:text-white outline-none w-full placeholder-gray-300 dark:placeholder-gray-600"
+            className="bg-transparent text-2xl sm:text-4xl font-semibold text-gray-900 dark:text-white outline-none w-full placeholder-gray-300 dark:placeholder-gray-600"
           />
           <div className="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm shrink-0">
             <span className="font-bold text-gray-900 dark:text-white">{tokenOut.symbol}</span>

@@ -137,7 +137,7 @@ export function PriceChart({ snapshots, loading, error }: PriceChartProps) {
         </p>
       )}
       <p className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">Axis times: New York (America/New_York)</p>
-      <div ref={chartContainerRef} className="flex-1 w-full min-h-[300px]" />
+      <div ref={chartContainerRef} className="flex-1 w-full min-h-[250px] sm:min-h-[300px]" />
     </div>
   );
 }
