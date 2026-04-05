@@ -11,6 +11,8 @@ import {
 import { formatCompactFromDecimalString } from '../utils/formatCompactNumber';
 import { formatChartAxisDateNY, formatChartTooltipNY } from '../utils/chartTimezone';
 import { factTradeUrl } from '../utils/factTradeApi';
+import { useTheme } from '../hooks/useTheme';
+import { getChartColors } from '../utils/chartColors';
 
 const STANDINGS_URL =
   typeof import.meta.env.VITE_LEADERBOARD_STANDINGS_URL === 'string' &&
@@ -23,7 +25,8 @@ const EVOLUTION_URL =
     ? import.meta.env.VITE_LEADERBOARD_RANK_URL.trim()
     : factTradeUrl('rank');
 
-const LINE_COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ec4899', '#6366f1'];
+const LINE_COLORS_LIGHT = ['#4f46e5', '#10b981', '#f59e0b', '#ec4899', '#6366f1'];
+const LINE_COLORS_DARK = ['#818cf8', '#34d399', '#fbbf24', '#f472b6', '#a78bfa'];
 
 function shortWallet(w: string) {
   if (w.length <= 14) return w;
@@ -63,6 +66,9 @@ function evolutionToChartData(snapshots: RankEvolutionSnapshot[]) {
 
 export function Leaderboard() {
   const { address } = useAccount();
+  const { isDark } = useTheme();
+  const chartColors = getChartColors();
+  const lineColors = isDark ? LINE_COLORS_DARK : LINE_COLORS_LIGHT;
   const [standings, setStandings] = useState<LeaderboardStandingsRow[]>([]);
   const [evolution, setEvolution] = useState<RankEvolutionSnapshot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,12 +119,12 @@ export function Leaderboard() {
 
   return (
     <div className="flex flex-col h-full gap-6">
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <TrendingUp size={20} className="text-indigo-600" />
             Rank Evolution (Top {Math.min(5, walletKeys.length) || 5})
-            <span className="text-xs font-normal text-gray-400 ml-1">(New York)</span>
+            <span className="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">(New York)</span>
           </h2>
           <button
             type="button"
@@ -130,24 +136,24 @@ export function Leaderboard() {
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
-        {error && <p className="text-sm text-amber-700 mb-2">{error}</p>}
+        {error && <p className="text-sm text-amber-700 dark:text-amber-400 mb-2">{error}</p>}
         {!loading && chartRows.length === 0 && (
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             No evolution data from the rank API yet. For local static files, set{' '}
-            <code className="text-xs bg-gray-100 px-1 rounded">VITE_LEADERBOARD_RANK_URL=/rank-evolution.json</code>{' '}
+            <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">VITE_LEADERBOARD_RANK_URL=/rank-evolution.json</code>{' '}
             (and standings URL) or run{' '}
-            <code className="text-xs bg-gray-100 px-1 rounded">npm run fetch-holder-balances</code>.
+            <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">npm run fetch-holder-balances</code>.
           </p>
         )}
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartRows}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartColors.grid} />
               <XAxis
                 dataKey="date"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+                tick={{ fill: chartColors.text, fontSize: 12 }}
                 dy={10}
               />
               <YAxis
@@ -155,7 +161,7 @@ export function Leaderboard() {
                 allowDecimals={false}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+                tick={{ fill: chartColors.text, fontSize: 12 }}
                 domain={[1, maxRank]}
                 dx={-10}
               />
@@ -165,7 +171,7 @@ export function Leaderboard() {
                   const iso = pl?.dateFull;
                   return iso ? formatChartTooltipNY(iso) : '';
                 }}
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ borderRadius: '12px', border: `1px solid ${chartColors.tooltipBorder}`, backgroundColor: chartColors.tooltipBg, color: chartColors.tooltipText, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 formatter={(value: number | string, name: string) => [value, shortWallet(name)]}
               />
               {walletKeys.map((w, i) => (
@@ -174,7 +180,7 @@ export function Leaderboard() {
                   type="monotone"
                   dataKey={w}
                   name={w}
-                  stroke={LINE_COLORS[i % LINE_COLORS.length]}
+                  stroke={lineColors[i % lineColors.length]}
                   strokeWidth={2}
                   dot={{ r: 3, strokeWidth: 2 }}
                   activeDot={{ r: 5 }}
@@ -186,9 +192,9 @@ export function Leaderboard() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex-1">
-        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden flex-1">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <Trophy size={20} className="text-amber-500" />
             Competition Standings
           </h2>
@@ -210,32 +216,32 @@ export function Leaderboard() {
               <col className="w-14 sm:w-16" />
             </colgroup>
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/30">
-                <th className="pl-3 pr-1 py-2.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">#</th>
-                <th className="px-1 py-2.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Wallet</th>
+              <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-800/30">
+                <th className="pl-3 pr-1 py-2.5 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">#</th>
+                <th className="px-1 py-2.5 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Wallet</th>
                 <th
-                  className="px-1 py-2.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide text-right"
+                  className="px-1 py-2.5 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide text-right"
                   title="Portfolio value (FT564)"
                 >
                   FT564
                 </th>
-                <th className="pl-1 pr-3 py-2.5 text-[10px] font-semibold text-gray-500 uppercase tracking-wide text-right">
+                <th className="pl-1 pr-3 py-2.5 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide text-right">
                   Δ last
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {loading && standings.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500 text-sm">
+                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
                     Loading standings…
                   </td>
                 </tr>
               ) : standings.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500 text-sm">
+                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
                     No standings yet. Run{' '}
-                    <code className="text-xs bg-gray-100 px-1 rounded">npm run fetch-holder-balances</code>.
+                    <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">npm run fetch-holder-balances</code>.
                   </td>
                 </tr>
               ) : (
@@ -245,25 +251,25 @@ export function Leaderboard() {
                   return (
                     <tr
                       key={`${row.rank}-${row.wallet}`}
-                      className={`hover:bg-gray-50 transition-colors ${isYou ? 'bg-indigo-50/50 hover:bg-indigo-50' : ''}`}
+                      className={`hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${isYou ? 'bg-indigo-50/50 dark:bg-indigo-950/50 hover:bg-indigo-50 dark:hover:bg-indigo-950' : ''}`}
                     >
                       <td className="pl-3 pr-1 py-2.5 whitespace-nowrap">
                         <div className="flex items-center gap-0.5">
                           <span
-                            className={`text-xs font-bold tabular-nums ${row.rank <= 3 ? 'text-amber-500' : 'text-gray-900'}`}
+                            className={`text-xs font-bold tabular-nums ${row.rank <= 3 ? 'text-amber-500' : 'text-gray-900 dark:text-white'}`}
                           >
                             {row.rank}
                           </span>
                           {row.rank === 1 && <Trophy size={12} className="text-amber-500 shrink-0" />}
                         </div>
                       </td>
-                      <td className="px-1 py-2.5 min-w-0 font-mono text-xs text-gray-600">
+                      <td className="px-1 py-2.5 min-w-0 font-mono text-xs text-gray-600 dark:text-gray-400">
                         {isYou ? (
-                          <span className="font-semibold text-indigo-600 inline-flex items-center gap-1 min-w-0 max-w-full">
+                          <span className="font-semibold text-indigo-600 dark:text-indigo-400 inline-flex items-center gap-1 min-w-0 max-w-full">
                             <span className="truncate">
                               {address ? `${address.slice(0, 6)}…${address.slice(-4)}` : row.wallet}
                             </span>
-                            <span className="bg-indigo-100 text-indigo-700 text-[9px] px-1 py-0.5 rounded shrink-0">
+                            <span className="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-[9px] px-1 py-0.5 rounded shrink-0">
                               You
                             </span>
                           </span>
@@ -274,7 +280,7 @@ export function Leaderboard() {
                         )}
                       </td>
                       <td
-                        className="px-1 py-2.5 whitespace-nowrap text-right text-xs font-medium text-gray-900 tabular-nums"
+                        className="px-1 py-2.5 whitespace-nowrap text-right text-xs font-medium text-gray-900 dark:text-white tabular-nums"
                         title={row.portfolioValue}
                       >
                         {formatCompactFromDecimalString(row.portfolioValue)}

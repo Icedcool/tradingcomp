@@ -11,7 +11,7 @@ import { Leaderboard } from './components/Leaderboard';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100">
       <Header />
       
       <main className="max-w-[1600px] mx-auto p-6">
