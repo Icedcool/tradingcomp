@@ -17,7 +17,7 @@ export function WalletConnect() {
     return (
       <button
         onClick={() => connect({ connector: injected() })}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium transition-colors shadow-sm"
+        className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 sm:px-4 py-2 rounded-xl text-sm sm:text-base font-medium transition-colors shadow-sm"
       >
         Connect Wallet
       </button>
@@ -28,7 +28,7 @@ export function WalletConnect() {
     return (
       <button
         onClick={() => switchChain({ chainId: sepolia.id })}
-        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2"
+        className="bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 rounded-xl text-sm sm:text-base font-medium transition-colors shadow-sm flex items-center gap-2"
       >
         <AlertTriangle size={18} />
         Switch to Sepolia
@@ -42,7 +42,7 @@ export function WalletConnect() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 rounded-xl font-medium transition-colors shadow-sm"
+        className="flex items-center gap-1.5 sm:gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-900 dark:text-white px-3 sm:px-4 py-2 rounded-xl text-sm sm:text-base font-medium transition-colors shadow-sm"
       >
         <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
         {truncatedAddress}

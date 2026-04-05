@@ -10,7 +10,7 @@ export function RecentTransactions() {
   const { items } = useRecentTransactions();
 
   return (
-    <div className="w-full mt-4 max-w-md bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+    <div className="w-full mt-3 sm:mt-4 max-w-md bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
         <History size={18} className="text-indigo-600 shrink-0" />
         <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Recent transactions</h2>

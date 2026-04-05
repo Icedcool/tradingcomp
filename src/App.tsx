@@ -14,24 +14,24 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900 selection:text-indigo-900 dark:selection:text-indigo-100">
       <Header />
       
-      <main className="max-w-[1600px] mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          {/* Left Panel: Market Context */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+      <main className="max-w-[1600px] mx-auto px-4 py-4 sm:p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+
+          {/* Left Panel: Market Context — shown first on mobile */}
+          <div className="order-1 lg:col-span-4 flex flex-col gap-4 sm:gap-6">
             <MarketContext />
           </div>
 
           {/* Middle Panel: recent txs + swap */}
-          <div className="lg:col-span-4 flex flex-col gap-6 items-center">
-            <div className="w-full max-w-md sticky top-24">
+          <div className="order-2 lg:col-span-4 flex flex-col gap-4 sm:gap-6 items-center">
+            <div className="w-full max-w-md lg:sticky lg:top-24">
               <SwapInterface />
-            <RecentTransactions />
+              <RecentTransactions />
             </div>
           </div>
 
           {/* Right Panel: The Competition */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="order-3 lg:col-span-4 flex flex-col gap-4 sm:gap-6">
             <Leaderboard />
           </div>
 

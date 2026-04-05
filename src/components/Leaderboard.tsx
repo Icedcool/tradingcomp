@@ -119,12 +119,12 @@ export function Leaderboard() {
 
   return (
     <div className="flex flex-col h-full gap-6">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <TrendingUp size={20} className="text-indigo-600" />
-            Rank Evolution (Top {Math.min(5, walletKeys.length) || 5})
-            <span className="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">(New York)</span>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 gap-2">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 min-w-0">
+            <TrendingUp size={20} className="text-indigo-600 shrink-0" />
+            <span className="truncate">Rank Evolution <span className="hidden sm:inline">(Top {Math.min(5, walletKeys.length) || 5})</span></span>
+            <span className="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1 hidden sm:inline">(New York)</span>
           </h2>
           <button
             type="button"
@@ -145,7 +145,7 @@ export function Leaderboard() {
             <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">npm run fetch-holder-balances</code>.
           </p>
         )}
-        <div className="h-64 w-full">
+        <div className="h-48 sm:h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartRows}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartColors.grid} />
@@ -193,10 +193,10 @@ export function Leaderboard() {
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden flex-1">
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <Trophy size={20} className="text-amber-500" />
-            Competition Standings
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <Trophy size={20} className="text-amber-500 shrink-0" />
+            <span className="truncate">Competition Standings</span>
           </h2>
           <button
             type="button"
