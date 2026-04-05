@@ -25,7 +25,16 @@ createRoot(document.getElementById('root')!).render(
         <RecentTransactionsProvider>
           <App />
         </RecentTransactionsProvider>
-        <Toaster position="bottom-right" />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: 'var(--chart-tooltip-bg)',
+              color: 'var(--chart-tooltip-text)',
+              border: '1px solid var(--chart-tooltip-border)',
+            },
+          }}
+        />
       </QueryClientProvider>
     </WagmiProvider>
   </StrictMode>,
