@@ -17,17 +17,17 @@ export default function App() {
       <main className="max-w-[1600px] mx-auto px-4 py-4 sm:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
 
-          {/* Middle Panel: recent txs + swap — shown first on mobile */}
-          <div className="order-1 lg:order-2 lg:col-span-4 flex flex-col gap-4 sm:gap-6 items-center">
+          {/* Left Panel: Market Context — shown first on mobile */}
+          <div className="order-1 lg:col-span-4 flex flex-col gap-4 sm:gap-6">
+            <MarketContext />
+          </div>
+
+          {/* Middle Panel: recent txs + swap */}
+          <div className="order-2 lg:col-span-4 flex flex-col gap-4 sm:gap-6 items-center">
             <div className="w-full max-w-md lg:sticky lg:top-24">
               <SwapInterface />
               <RecentTransactions />
             </div>
-          </div>
-
-          {/* Left Panel: Market Context */}
-          <div className="order-2 lg:order-1 lg:col-span-4 flex flex-col gap-4 sm:gap-6">
-            <MarketContext />
           </div>
 
           {/* Right Panel: The Competition */}
