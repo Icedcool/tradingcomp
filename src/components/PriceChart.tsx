@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createChart, ColorType, IChartApi, LineSeries, type Time } from 'lightweight-charts';
 import type { PoolPriceSnapshot } from '../types/poolPrice';
-import { formatUnixSecondsNY } from '../utils/chartTimezone';
+import { formatUnixSeconds } from '../utils/chartTimezone';
 import { useTheme } from '../hooks/useTheme';
 import { getChartColors } from '../utils/chartColors';
 
@@ -67,11 +67,11 @@ export function PriceChart({ snapshots, loading, error }: PriceChartProps) {
       height: 300,
       localization: {
         timeFormatter: (time: Time) => {
-          if (typeof time === 'number') return formatUnixSecondsNY(time);
+          if (typeof time === 'number') return formatUnixSeconds(time);
           if (time && typeof time === 'object' && 'year' in time) {
             const bd = time as { year: number; month: number; day: number };
             const utc = Date.UTC(bd.year, bd.month - 1, bd.day, 12, 0, 0);
-            return formatUnixSecondsNY(Math.floor(utc / 1000));
+            return formatUnixSeconds(Math.floor(utc / 1000));
           }
           return '';
         },
@@ -89,6 +89,11 @@ export function PriceChart({ snapshots, loading, error }: PriceChartProps) {
       crosshairMarkerRadius: 4,
       crosshairMarkerBorderColor: colors.crosshairBorder,
       crosshairMarkerBackgroundColor: colors.line,
+      priceFormat: {
+        type: 'price',
+        precision: 3,
+        minMove: 0.001,
+      },
     });
 
     lineSeries.setData(lineData as { time: any; value: number }[]);
@@ -114,8 +119,8 @@ export function PriceChart({ snapshots, loading, error }: PriceChartProps) {
             onClick={() => setTimeframe(tf)}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               timeframe === tf
-                ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
           >
             {tf}
@@ -130,14 +135,13 @@ export function PriceChart({ snapshots, loading, error }: PriceChartProps) {
       )}
       {!loading && !error && lineData.length === 0 && (
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-          No price data in this range. Data is loaded via <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">/api/fact/trade/poolPrice</code>{' '}
-          (proxied to Fact Finance). Try another timeframe or set{' '}
+          No price data in this range. Data is loaded via{' '}
+          <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">poolPrice</code> Try another timeframe or set{' '}
           <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">VITE_POOL_PRICE_URL=/pool-price.json</code> and run{' '}
           <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">npm run fetch-pool-price</code>.
         </p>
       )}
-      <p className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">Axis times: New York (America/New_York)</p>
-      <div ref={chartContainerRef} className="flex-1 w-full min-h-[250px] sm:min-h-[300px]" />
+      <div ref={chartContainerRef} className="flex-1 w-full min-h-[300px]" />
     </div>
   );
 }

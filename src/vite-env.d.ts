@@ -4,6 +4,8 @@ interface ImportMetaEnv {
   readonly VITE_TOKEN_FETH_ADDRESS: string;
   readonly VITE_TOKEN_FT564_ADDRESS: string;
   readonly VITE_PAIR_V2_ADDRESS: string;
+  /** Uniswap V2 Router02 (approve this spender; swap uses one tx). */
+  readonly VITE_UNISWAP_V2_ROUTER_ADDRESS: string;
   /** Used by Node scripts (e.g. fetch-holder-balances); not required for the Vite client build. */
   readonly VITE_ETHERSCAN_API_KEY?: string;
   /** Override Fact Finance proxy base (default `/api/fact` → Vite/Vercel proxy). */
@@ -14,6 +16,8 @@ interface ImportMetaEnv {
   readonly VITE_LEADERBOARD_STANDINGS_URL?: string;
   /** Override rank evolution JSON URL. */
   readonly VITE_LEADERBOARD_RANK_URL?: string;
+  /** Rank-evolution chart: hide wallets still at this fs564 balance (default 5000 → displayed as 5,000.000). */
+  readonly VITE_RANK_EVOLUTION_BASELINE?: string;
 }
 
 interface ImportMeta {

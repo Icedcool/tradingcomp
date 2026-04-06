@@ -17,7 +17,7 @@ function applyTheme(theme: Theme) {
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
 
   useEffect(() => {
     applyTheme(theme);
@@ -38,6 +38,7 @@ export function useTheme() {
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
       localStorage.setItem('theme', next);
+      applyTheme(next);
       return next;
     });
   }, []);
